@@ -396,6 +396,16 @@ public class Convolution extends JComponent implements KeyListener {
 
 	public void Convolution(double[][] mask) {
 		// do a convolution procedure
+		int w = image.getWidth();
+		int h = image.getHeight();
+		double[][] pixels = new double[w][h];
+		// For each row
+		for(int j = 1; j < h - 1; j++) {
+			// For each column
+			for(int i = 1; i < w - 1; i++) {
+				// not enough information to do this yet. wait for the assignment to be released.
+			}
+		}
 	}
 
 	// These function definitions must be included to satisfy the KeyListener interface
