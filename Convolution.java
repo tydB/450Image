@@ -394,6 +394,10 @@ public class Convolution extends JComponent implements KeyListener {
 		return count;
 	}
 
+	public void Convolution(double[][] mask) {
+		// do a convolution procedure
+	}
+
 	// These function definitions must be included to satisfy the KeyListener interface
 	public void keyPressed(KeyEvent e) {}
 	public void keyReleased(KeyEvent e) {}
