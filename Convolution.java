@@ -406,7 +406,7 @@ public class Convolution extends JComponent implements KeyListener {
 				mask[i][j] = 1.0 / (double)(mask.length * mask[i].length);
 			}
 		}
-		Convolution(mask);
+		convolution(mask);
 	}
 
 	public void edgeDetect() {
@@ -421,7 +421,7 @@ public class Convolution extends JComponent implements KeyListener {
 		mask[2][0] = -1.0 / 8.0;
 		mask[2][1] = -1.0 / 8.0;
 		mask[2][2] = -1.0 / 8.0;
-		Convolution(mask);
+		convolution(mask);
 	}
 
 	public void gaussianBlur() {
@@ -436,10 +436,10 @@ public class Convolution extends JComponent implements KeyListener {
 		mask[2][0] = 1.0 / 16.0;
 		mask[2][1] = 1.0 / 8.0;
 		mask[2][2] = 1.0 / 16.0;
-		Convolution(mask);
+		convolution(mask);
 	}
 
-	public void Convolution(double[][] mask) {
+	public void convolution(double[][] mask) {
 		System.out.println("Convolution Started");
 		// do a convolution procedure
 		int w = image.getWidth();
@@ -481,6 +481,24 @@ public class Convolution extends JComponent implements KeyListener {
 		repaint();
 	}
 
+	public void gamma(double g) {
+		// create look up table
+		int[] table = new int[256];
+		for (int i = 0; i < table.length; ++i) {
+			table[i] = (int)(Math.pow((double)i / 255.0, g) * 255.0);
+		}
+		int w = image.getWidth();
+		int h = image.getHeight();
+		// For each row
+		for(int j = 0; j < h; j++) {
+			// For each column
+			for(int i = 0; i < w; i++) {
+				image.setRGB(i, j, makeColour(table[getRed(image.getRGB(i,j))], table[getGreen(image.getRGB(i,j))], table[getBlue(image.getRGB(i,j))]));
+			}
+		}
+		repaint();
+	}
+
 	// These function definitions must be included to satisfy the KeyListener interface
 	public void keyPressed(KeyEvent e) {}
 	public void keyReleased(KeyEvent e) {}
@@ -506,8 +524,10 @@ public class Convolution extends JComponent implements KeyListener {
 		else if (e.getKeyChar() == '*') erosion(8);
 		else if ((int)e.getKeyChar() >= 49 && (int)e.getKeyChar() <= 56) dialation((int)e.getKeyChar() - 48);
 		else if (e.getKeyChar() == 'e') edgeDetect();
-		else if (e.getKeyChar() == 'b') boxBlur(9);
+		else if (e.getKeyChar() == 'b') boxBlur(5);
 		else if (e.getKeyChar() == 'B') gaussianBlur();
+		else if (e.getKeyChar() == '+') gamma(0.8);
+		else if (e.getKeyChar() == '-') gamma(1.2);
 		// existing 
 		else if (e.getKeyChar() == 'g') grayScale();
 		else if (e.getKeyChar() == 'G') sepia();
