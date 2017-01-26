@@ -524,7 +524,8 @@ public class Convolution extends JComponent implements KeyListener {
 		else if (e.getKeyChar() == '*') erosion(8);
 		else if ((int)e.getKeyChar() >= 49 && (int)e.getKeyChar() <= 56) dialation((int)e.getKeyChar() - 48);
 		else if (e.getKeyChar() == 'e') edgeDetect();
-		else if (e.getKeyChar() == 'b') boxBlur(5);
+		else if (e.getKeyChar() == 's') boxBlur(3);
+		else if (e.getKeyChar() == 'S') boxBlur(7);
 		else if (e.getKeyChar() == 'B') gaussianBlur();
 		else if (e.getKeyChar() == '+') gamma(0.8);
 		else if (e.getKeyChar() == '-') gamma(1.2);
