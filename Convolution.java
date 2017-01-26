@@ -394,18 +394,91 @@ public class Convolution extends JComponent implements KeyListener {
 		return count;
 	}
 
+	public void boxBlur(int size) {
+		if (size % 2 != 1) {
+			System.out.println("Size must be odd");
+			size = 3;
+		}
+		System.out.println("Box Blur " + size + "x" + size);
+		double[][] mask = new double[size][size];
+		for (int i = 0; i < mask.length; ++i) {
+			for (int j = 0; j < mask[i].length; ++j) {
+				mask[i][j] = 1.0 / (double)(mask.length * mask[i].length);
+			}
+		}
+		Convolution(mask);
+	}
+
+	public void edgeDetect() {
+		System.out.println("Edge Detection 3x3");
+		double[][] mask = new double[3][3];
+		mask[0][0] = -1.0 / 8.0;
+		mask[0][1] = -1.0 / 8.0;
+		mask[0][2] = -1.0 / 8.0;
+		mask[1][0] = -1.0 / 8.0;
+		mask[1][1] = 1;
+		mask[1][2] = -1.0 / 8.0;
+		mask[2][0] = -1.0 / 8.0;
+		mask[2][1] = -1.0 / 8.0;
+		mask[2][2] = -1.0 / 8.0;
+		Convolution(mask);
+	}
+
+	public void gaussianBlur() {
+		System.out.println("Gaussian Blur 3x3");
+		double[][] mask = new double[3][3];
+		mask[0][0] = 1.0 / 16.0;
+		mask[0][1] = 1.0 / 8.0;
+		mask[0][2] = 1.0 / 16.0;
+		mask[1][0] = 1.0 / 8.0;
+		mask[1][1] = 1.0 / 4.0;
+		mask[1][2] = 1.0 / 8.0;
+		mask[2][0] = 1.0 / 16.0;
+		mask[2][1] = 1.0 / 8.0;
+		mask[2][2] = 1.0 / 16.0;
+		Convolution(mask);
+	}
+
 	public void Convolution(double[][] mask) {
+		System.out.println("Convolution Started");
 		// do a convolution procedure
 		int w = image.getWidth();
 		int h = image.getHeight();
-		double[][] pixels = new double[w][h];
+		BufferedImage newImg = new BufferedImage(w, h, image.getType());
+		int maskOffsetI = mask.length / 2;
+		int maskOffsetJ = mask[0].length / 2;
 		// For each row
-		for(int j = 1; j < h - 1; j++) {
+		for(int j = maskOffsetJ; j < h - maskOffsetJ; j++) {
 			// For each column
-			for(int i = 1; i < w - 1; i++) {
-				// not enough information to do this yet. wait for the assignment to be released.
+			for(int i = maskOffsetI; i < w - maskOffsetI; i++) {
+				double red = 0;
+				for (int sampleJ = 0; sampleJ < mask.length; ++sampleJ) {
+					for (int sampleI = 0; sampleI < mask[sampleJ].length; ++sampleI) {
+						red += (double)getRed(image.getRGB(i + sampleI - maskOffsetI, j + sampleJ - maskOffsetJ)) * mask[sampleI][sampleJ];
+					}
+				}
+				double green = 0;
+				for (int sampleJ = 0; sampleJ < mask.length; ++sampleJ) {
+					for (int sampleI = 0; sampleI < mask[sampleJ].length; ++sampleI) {
+						green += (double)getGreen(image.getRGB(i + sampleI - maskOffsetI, j + sampleJ - maskOffsetJ)) * mask[sampleI][sampleJ];
+					}
+				}
+				double blue = 0;
+				for (int sampleJ = 0; sampleJ < mask.length; ++sampleJ) {
+					for (int sampleI = 0; sampleI < mask[sampleJ].length; ++sampleI) {
+						blue += (double)getBlue(image.getRGB(i + sampleI - maskOffsetI, j + sampleJ - maskOffsetJ)) * mask[sampleI][sampleJ];
+					}
+				}
+				if ((int)red > 255 || (int)green > 255 || (int)blue > 255) {
+					System.out.println("Color to error");
+					System.out.println((int)red + ": " + (int)blue + ": " + (int)green);
+				}
+				newImg.setRGB(i, j, makeColour((int)red, (int)green, (int)blue));
 			}
 		}
+		copyImage(newImg, image);
+		System.out.println("Convolution Ended");
+		repaint();
 	}
 
 	// These function definitions must be included to satisfy the KeyListener interface
@@ -415,7 +488,6 @@ public class Convolution extends JComponent implements KeyListener {
 	// Respond to key pressed
 	public void keyTyped(KeyEvent e) {
 		if (e.getKeyChar() == KeyEvent.VK_ESCAPE)  System.exit(0); 	// exit when escape is pressed
-		else if (e.getKeyChar() == 'g') grayScale();
 		else if (e.getKeyChar() == 'i') invert();
 		else if (e.getKeyChar() == 't') threshold();
 		else if (e.getKeyChar() == 'l') errorCorrection(127);
@@ -433,6 +505,11 @@ public class Convolution extends JComponent implements KeyListener {
 		else if (e.getKeyChar() == '&') erosion(7);
 		else if (e.getKeyChar() == '*') erosion(8);
 		else if ((int)e.getKeyChar() >= 49 && (int)e.getKeyChar() <= 56) dialation((int)e.getKeyChar() - 48);
+		else if (e.getKeyChar() == 'e') edgeDetect();
+		else if (e.getKeyChar() == 'b') boxBlur(9);
+		else if (e.getKeyChar() == 'B') gaussianBlur();
+		// existing 
+		else if (e.getKeyChar() == 'g') grayScale();
 		else if (e.getKeyChar() == 'G') sepia();
 		else if (e.getKeyChar() == 'k') copyImage(imageKings, image); // reload the building picture
 		else if (e.getKeyChar() == 'c') copyImage(imageChristmas, image); // reload the class picture
@@ -455,7 +532,6 @@ public class Convolution extends JComponent implements KeyListener {
 		for(int j=0; j<src.getHeight(); j++)
 			for(int i=0; i<src.getWidth(); i++)
 				dst.setRGB(i, j, src.getRGB(i,j));
-		
 		repaint(); // request the image be redrawn
 	}
 	
