@@ -11,6 +11,7 @@ import java.awt.image.*;
 import java.io.*;
 import javax.swing.*;
 import javax.imageio.*;
+import java.util.Arrays;
 
 
 // This class loads two images and allows grayscale and sepia colouring of the images
@@ -400,88 +401,177 @@ public class Convolution extends JComponent implements KeyListener {
 			size = 3;
 		}
 		System.out.println("Box Blur " + size + "x" + size);
-		double[][] mask = new double[size][size];
-		for (int i = 0; i < mask.length; ++i) {
-			for (int j = 0; j < mask[i].length; ++j) {
-				mask[i][j] = 1.0 / (double)(mask.length * mask[i].length);
+		double[][] kernel = new double[size][size];
+		for (int i = 0; i < kernel.length; ++i) {
+			for (int j = 0; j < kernel[i].length; ++j) {
+				kernel[i][j] = 1.0 / (double)(kernel.length * kernel[i].length);
 			}
 		}
-		convolution(mask);
+		copyImage(convolution(kernel), image);
+		repaint();
 	}
 
-	public void edgeDetect() {
-		System.out.println("Edge Detection 3x3");
-		double[][] mask = new double[3][3];
-		mask[0][0] = -1.0 / 8.0;
-		mask[0][1] = -1.0 / 8.0;
-		mask[0][2] = -1.0 / 8.0;
-		mask[1][0] = -1.0 / 8.0;
-		mask[1][1] = 1;
-		mask[1][2] = -1.0 / 8.0;
-		mask[2][0] = -1.0 / 8.0;
-		mask[2][1] = -1.0 / 8.0;
-		mask[2][2] = -1.0 / 8.0;
-		convolution(mask);
+	public void edgeDetect(int size) {
+		System.out.println("Edge Detect " + size + "x" + size);
+		double[][] kernel = new double[size][size];
+		for (int i = 0; i < kernel.length; ++i) {
+			for (int j = 0; j < kernel[i].length; ++j) {
+				kernel[i][j] = -1.0 / ((double)(kernel.length * kernel[i].length) - 1.0);
+			}
+		}
+		kernel[kernel.length / 2][kernel[0].length / 2] = 1;
+		copyImage(convolution(kernel), image);
+		repaint();
 	}
 
-	public void gaussianBlur() {
-		System.out.println("Gaussian Blur 3x3");
-		double[][] mask = new double[3][3];
-		mask[0][0] = 1.0 / 16.0;
-		mask[0][1] = 1.0 / 8.0;
-		mask[0][2] = 1.0 / 16.0;
-		mask[1][0] = 1.0 / 8.0;
-		mask[1][1] = 1.0 / 4.0;
-		mask[1][2] = 1.0 / 8.0;
-		mask[2][0] = 1.0 / 16.0;
-		mask[2][1] = 1.0 / 8.0;
-		mask[2][2] = 1.0 / 16.0;
-		convolution(mask);
+	public void gaussianBlur(int size) {
+		System.out.println("Gaussian Blur " + size + "x" + size);
+		double[][] kernel = new double[size][size];
+		if (size == 3) {
+			kernel[0][0] = 1.0 / 16.0;
+			kernel[0][1] = 1.0 / 8.0;
+			kernel[0][2] = 1.0 / 16.0;
+			kernel[1][0] = 1.0 / 8.0;
+			kernel[1][1] = 1.0 / 4.0;
+			kernel[1][2] = 1.0 / 8.0;
+			kernel[2][0] = 1.0 / 16.0;
+			kernel[2][1] = 1.0 / 8.0;
+			kernel[2][2] = 1.0 / 16.0;
+		}
+		else {
+			kernel[0][0] = 0.000001;
+			kernel[0][1] = 0.000026;
+			kernel[0][2] = 0.000208;
+			kernel[0][3] = 0.000413;
+			kernel[0][4] = 0.000208;
+			kernel[0][5] = 0.000026;
+			kernel[0][6] = 0.000001;
+
+			kernel[1][0] = 0.000026;
+			kernel[1][1] = 0.000871;
+			kernel[1][2] = 0.006952;
+			kernel[1][3] = 0.013811;
+			kernel[1][4] = 0.006952;
+			kernel[1][5] = 0.000871;
+			kernel[1][6] = 0.000026;
+
+			kernel[2][0] = 0.000208;
+			kernel[2][1] = 0.006952;
+			kernel[2][2] = 0.055504;
+			kernel[2][3] = 0.110265;
+			kernel[2][4] = 0.055504;
+			kernel[2][5] = 0.006952;
+			kernel[2][6] = 0.000208;
+
+			kernel[3][0] = 0.000413;
+			kernel[3][1] = 0.013811;
+			kernel[3][2] = 0.110265;
+			kernel[3][3] = 0.219057;
+			kernel[3][4] = 0.110265;
+			kernel[3][5] = 0.013811;
+			kernel[3][6] = 0.000413;
+
+			kernel[4][0] = 0.000208;
+			kernel[4][1] = 0.006952;
+			kernel[4][2] = 0.055504;
+			kernel[4][3] = 0.110265;
+			kernel[4][4] = 0.055504;
+			kernel[4][5] = 0.006952;
+			kernel[4][6] = 0.000208;
+
+			kernel[5][0] = 0.000026;
+			kernel[5][1] = 0.000871;
+			kernel[5][2] = 0.006952;
+			kernel[5][3] = 0.013811;
+			kernel[5][4] = 0.006952;
+			kernel[5][5] = 0.000871;
+			kernel[5][6] = 0.000026;
+
+			kernel[6][0] = 0.000001;
+			kernel[6][1] = 0.000026;
+			kernel[6][2] = 0.000208;
+			kernel[6][3] = 0.000413;
+			kernel[6][4] = 0.000208;
+			kernel[6][5] = 0.000026;
+			kernel[6][6] = 0.000001;
+		}
+		copyImage(convolution(kernel), image);
+		repaint();
 	}
 
-	public void convolution(double[][] mask) {
+	public void printKernel(double[][] kernel) {
+		for (int i = 0; i < kernel.length; ++i) {
+			String line = "[" + kernel[i][0];
+			for (int j = 1; j < kernel[i].length; ++j) {
+				line += ", " + kernel[i][j];
+			}
+			System.out.println(line + "]");
+		}
+	}
+
+	public BufferedImage convolution(double[][] kernel) {
 		System.out.println("Convolution Started");
+		printKernel(kernel);
 		// do a convolution procedure
 		int w = image.getWidth();
 		int h = image.getHeight();
 		BufferedImage newImg = new BufferedImage(w, h, image.getType());
-		int maskOffsetI = mask.length / 2;
-		int maskOffsetJ = mask[0].length / 2;
+		int kernelOffsetI = kernel.length / 2;
+		int kernelOffsetJ = kernel[0].length / 2;
 		// For each row
-		for(int j = maskOffsetJ; j < h - maskOffsetJ; j++) {
+		for(int j = kernelOffsetJ; j < h - kernelOffsetJ; j++) {
 			// For each column
-			for(int i = maskOffsetI; i < w - maskOffsetI; i++) {
+			for(int i = kernelOffsetI; i < w - kernelOffsetI; i++) {
 				double red = 0;
-				for (int sampleJ = 0; sampleJ < mask.length; ++sampleJ) {
-					for (int sampleI = 0; sampleI < mask[sampleJ].length; ++sampleI) {
-						red += (double)getRed(image.getRGB(i + sampleI - maskOffsetI, j + sampleJ - maskOffsetJ)) * mask[sampleI][sampleJ];
+				for (int sampleJ = 0; sampleJ < kernel.length; ++sampleJ) {
+					for (int sampleI = 0; sampleI < kernel[sampleJ].length; ++sampleI) {
+						red += (double)getRed(image.getRGB(i + sampleI - kernelOffsetI, j + sampleJ - kernelOffsetJ)) * kernel[sampleI][sampleJ];
 					}
+				}
+				// clamp the output
+				if (red > 255) {
+					red = 255.0;
+				}
+				if (red < 0) {
+					red = 0;
 				}
 				double green = 0;
-				for (int sampleJ = 0; sampleJ < mask.length; ++sampleJ) {
-					for (int sampleI = 0; sampleI < mask[sampleJ].length; ++sampleI) {
-						green += (double)getGreen(image.getRGB(i + sampleI - maskOffsetI, j + sampleJ - maskOffsetJ)) * mask[sampleI][sampleJ];
+				for (int sampleJ = 0; sampleJ < kernel.length; ++sampleJ) {
+					for (int sampleI = 0; sampleI < kernel[sampleJ].length; ++sampleI) {
+						green += (double)getGreen(image.getRGB(i + sampleI - kernelOffsetI, j + sampleJ - kernelOffsetJ)) * kernel[sampleI][sampleJ];
 					}
+				}
+				// clamp the output
+				if (green > 255) {
+					green = 255.0;
+				}
+				if (green < 0) {
+					green = 0;
 				}
 				double blue = 0;
-				for (int sampleJ = 0; sampleJ < mask.length; ++sampleJ) {
-					for (int sampleI = 0; sampleI < mask[sampleJ].length; ++sampleI) {
-						blue += (double)getBlue(image.getRGB(i + sampleI - maskOffsetI, j + sampleJ - maskOffsetJ)) * mask[sampleI][sampleJ];
+				for (int sampleJ = 0; sampleJ < kernel.length; ++sampleJ) {
+					for (int sampleI = 0; sampleI < kernel[sampleJ].length; ++sampleI) {
+						blue += (double)getBlue(image.getRGB(i + sampleI - kernelOffsetI, j + sampleJ - kernelOffsetJ)) * kernel[sampleI][sampleJ];
 					}
 				}
-				if ((int)red > 255 || (int)green > 255 || (int)blue > 255) {
-					System.out.println("Color to error");
-					System.out.println((int)red + ": " + (int)blue + ": " + (int)green);
+				// clamp the output
+				if (blue > 255) {
+					blue = 255.0;
+				}
+				if (blue < 0) {
+					blue = 0;
 				}
 				newImg.setRGB(i, j, makeColour((int)red, (int)green, (int)blue));
 			}
 		}
-		copyImage(newImg, image);
 		System.out.println("Convolution Ended");
-		repaint();
+		// copyImage(newImg, image);
+		// repaint();
+		return newImg;
 	}
 
 	public void gamma(double g) {
+		System.out.println("Gamma Start:" + g);
 		// create look up table
 		int[] table = new int[256];
 		for (int i = 0; i < table.length; ++i) {
@@ -496,7 +586,42 @@ public class Convolution extends JComponent implements KeyListener {
 				image.setRGB(i, j, makeColour(table[getRed(image.getRGB(i,j))], table[getGreen(image.getRGB(i,j))], table[getBlue(image.getRGB(i,j))]));
 			}
 		}
+		System.out.println("Gamma End");
 		repaint();
+	}
+
+	public void medianFilter(int size) {
+		System.out.println("Median Filter Start " + size + "x" + size);
+		int w = image.getWidth();
+		int h = image.getHeight();
+		BufferedImage newImg = new BufferedImage(w, h, image.getType());
+		int inset = size / 2;
+		// For each row
+		for(int j = inset; j < h - inset; j++) {
+			// For each column
+			for(int i = inset; i < w - inset; i++) {
+				int[] list = new int[size * size];
+				for (int sampleJ = 0; sampleJ < size; ++sampleJ) {
+					for (int sampleI = 0; sampleI < size; ++sampleI) {
+						// think I will still have to go to grey scale and do it that way but this appears to work
+						list[sampleJ * size + sampleI] = image.getRGB(i + sampleI - inset, j + sampleJ - inset);
+					}
+				}
+				// sort array
+				Arrays.sort(list);
+				// pick median
+				// replace in new image
+				newImg.setRGB(i, j, list[list.length / 2]);
+			}
+		}
+		System.out.println("Median Filter End");
+		copyImage(newImg, image);
+		repaint();
+	}
+
+	public void sharpen(int size) {
+		System.out.println("Sharpen Start " + size + "x" + size);
+		System.out.println("Sharpen End");
 	}
 
 	// These function definitions must be included to satisfy the KeyListener interface
@@ -523,12 +648,20 @@ public class Convolution extends JComponent implements KeyListener {
 		else if (e.getKeyChar() == '&') erosion(7);
 		else if (e.getKeyChar() == '*') erosion(8);
 		else if ((int)e.getKeyChar() >= 49 && (int)e.getKeyChar() <= 56) dialation((int)e.getKeyChar() - 48);
-		else if (e.getKeyChar() == 'e') edgeDetect();
+		else if (e.getKeyChar() == 'e') edgeDetect(3);
+		else if (e.getKeyChar() == 'E') edgeDetect(7);
 		else if (e.getKeyChar() == 's') boxBlur(3);
 		else if (e.getKeyChar() == 'S') boxBlur(7);
-		else if (e.getKeyChar() == 'B') gaussianBlur();
-		else if (e.getKeyChar() == '+') gamma(0.8);
-		else if (e.getKeyChar() == '-') gamma(1.2);
+		else if (e.getKeyChar() == 'f') gaussianBlur(3);
+		else if (e.getKeyChar() == 'F') gaussianBlur(7);
+		else if (e.getKeyChar() == 'b') gamma(0.8);
+		else if (e.getKeyChar() == 'B') gamma(0.6);
+		else if (e.getKeyChar() == 'd') gamma(1.2);
+		else if (e.getKeyChar() == 'D') gamma(1.4);
+		else if (e.getKeyChar() == 'm') medianFilter(3);
+		else if (e.getKeyChar() == 'M') medianFilter(7);
+		else if (e.getKeyChar() == 'z') sharpen(3);
+		else if (e.getKeyChar() == 'Z') sharpen(7);
 		// existing 
 		else if (e.getKeyChar() == 'g') grayScale();
 		else if (e.getKeyChar() == 'G') sepia();
