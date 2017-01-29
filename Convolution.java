@@ -3,6 +3,7 @@
 //
 // Instructor: Michael Janzen
 // Student: Tyler deBoon
+// SID: 120030
 // Jan. 17, 2017
 
 import java.awt.*;
@@ -115,6 +116,7 @@ public class Convolution extends JComponent implements KeyListener {
 	// Invert the image
 	// invert each pixel using 255 - R, 255 - g...
 	public void invert() {
+		System.out.println("Invert Start");
 		// For each row
 		for(int j=0; j<image.getHeight(); j++)
 		{
@@ -128,11 +130,13 @@ public class Convolution extends JComponent implements KeyListener {
 			}
 		}
 		repaint();
+		System.out.println("Invert End");
 	}
 	
 	// Threshold the image at 127
 	// convert to black and white and cutoff at 127
 	public void threshold() {
+		System.out.println("Threshold Start");
 		// For each row
 		for(int j=0; j<image.getHeight(); j++)
 		{
@@ -150,6 +154,7 @@ public class Convolution extends JComponent implements KeyListener {
 			}
 		}
 		repaint();
+		System.out.println("Threshold End");
 	}
 	
 	// create a histogram and possibly draw the results to the image
@@ -157,6 +162,7 @@ public class Convolution extends JComponent implements KeyListener {
 	// draw will determine if the histogram is drawn on the image
 	// returns the median of the histogram
 	public int histogram(char type, boolean draw) {
+		System.out.println("Histogram Start");
 		// draw values
 		int redV = 0;
 		int greenV = 0;
@@ -220,11 +226,13 @@ public class Convolution extends JComponent implements KeyListener {
 			}
 			repaint();
 		}
+		System.out.println("Histogram End");
 		return halfValue;
 	}
 
 	// convert to black and white but will try and correct for errors
 	public void errorCorrection(int cutOff) {
+		System.out.println("Error Correction Start");
 		int w = image.getWidth();
 		int h = image.getHeight();
 		double[][] pixels = new double[w][h];
@@ -267,11 +275,12 @@ public class Convolution extends JComponent implements KeyListener {
 			}
 		}
 		repaint();
+		System.out.println("Error Correction End");
 	}
 
 	// convert to black and white around a given value
 	public void valueThreshold(int cutOff) {
-		System.out.println("Using a threshold of " + cutOff);
+		System.out.println("Value Threshold at " + cutOff);
 		// For each row
 		for(int j=0; j<image.getHeight(); j++)
 		{
@@ -288,10 +297,12 @@ public class Convolution extends JComponent implements KeyListener {
 			}
 		}
 		repaint();
+		System.out.println("Value Threshold End");
 	}
 
 	// switch black pixels to white if they have less then num black neighbors
 	public void erosion(int num) {
+		System.out.println("Erosion Start");
 		// make the buffer array
 		int w = image.getWidth();
 		int h = image.getHeight();
@@ -331,10 +342,12 @@ public class Convolution extends JComponent implements KeyListener {
 			}
 		}
 		repaint();
+		System.out.println("Erosion End");
 	}
 
 	// switch white to black if they have more then num black neighbors
-	public void dialation(int num) {
+	public void dilation(int num) {
+		System.out.println("Dilation Start");
 		// make the buffer array
 		int w = image.getWidth();
 		int h = image.getHeight();
@@ -374,6 +387,7 @@ public class Convolution extends JComponent implements KeyListener {
 			}
 		}
 		repaint();
+		System.out.println("Dilation End");
 	}
 
 	// count the number of 'true' pixels around the row, col.
@@ -418,7 +432,7 @@ public class Convolution extends JComponent implements KeyListener {
 		else if (e.getKeyChar() == '^') erosion(6);
 		else if (e.getKeyChar() == '&') erosion(7);
 		else if (e.getKeyChar() == '*') erosion(8);
-		else if ((int)e.getKeyChar() >= 49 && (int)e.getKeyChar() <= 56) dialation((int)e.getKeyChar() - 48);
+		else if ((int)e.getKeyChar() >= 49 && (int)e.getKeyChar() <= 56) dilation((int)e.getKeyChar() - 48);
 		else if (e.getKeyChar() == 'G') sepia();
 		else if (e.getKeyChar() == 'k') copyImage(imageKings, image); // reload the building picture
 		else if (e.getKeyChar() == 'c') copyImage(imageChristmas, image); // reload the class picture
