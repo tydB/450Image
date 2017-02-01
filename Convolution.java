@@ -3,6 +3,7 @@
 //
 // Instructor: Michael Janzen
 // Student: Tyler deBoon
+// SID: 120030
 // Jan. 17, 2017
 
 import java.awt.*;
@@ -621,6 +622,30 @@ public class Convolution extends JComponent implements KeyListener {
 
 	public void sharpen(int size) {
 		System.out.println("Sharpen Start " + size + "x" + size);
+		double[][] kernel = new double[size][size];
+		for (int i = 0; i < kernel.length; ++i) {
+			for (int j = 0; j < kernel[i].length; ++j) {
+				kernel[i][j] = 1.0 / (double)(kernel.length * kernel[i].length);
+			}
+		}
+		BufferedImage blur = convolution(kernel);
+		BufferedImage newImg = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
+		for(int j = 0; j < image.getHeight(); j++) {
+			// For each column
+			for(int i = 0; i < image.getWidth(); i++) {
+				int red = (int)((double)getRed(image.getRGB(i,j)) * 1.6 - (double)getRed(blur.getRGB(i,j)) * 0.6);
+				if (red > 255) red = 255;
+				if (red < 0) red = 0;
+				int green = (int)((double)getGreen(image.getRGB(i,j)) * 1.6 - (double)getGreen(blur.getRGB(i,j)) * 0.6);
+				if (green > 255) green = 255;
+				if (green < 0) green = 0;
+				int blue = (int)((double)getBlue(image.getRGB(i,j)) * 1.6 - (double)getBlue(blur.getRGB(i,j)) * 0.6);
+				if (blue > 255) blue = 255;
+				if (blue < 0) blue = 0;
+				newImg.setRGB(i, j, makeColour(red,green,blue));
+			}
+		}
+		copyImage(newImg, image);
 		System.out.println("Sharpen End");
 	}
 
